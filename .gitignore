@@ -1,0 +1,18 @@
+# Ignore arquivos gerados pelo sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignore arquivos de configuração de editores de código populares
+.vscode/
+.idea/
+
+# Ignore dependências de Node.js (boa prática, caso adicione no futuro)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# Ignore arquivos compactados de build/distribuição
+*.zip
+*.crx
+/dist
+/build
