@@ -59,8 +59,7 @@ class SmartTranslator {
         throw new Error(response.error);
       }
     } catch (error) {
-      console.error('Erro ao comunicar com o background script:', error);
-      this.showError('Erro na tradução. Verifique as configurações e o console.');
+      this.showError('Erro na tradução. Verifique as configurações.');
       throw error;
     }
   }

@@ -1,0 +1,14 @@
+{
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:chrome": "cpy manifest.v3.json . --rename=manifest.json && bestzip builds/instant-translate-chrome-v${npm_package_version}.zip manifest.json background.js content.js assets lib popup && del-cli manifest.json",
+    "build:firefox": "cpy manifest.v2.json . --rename=manifest.json && bestzip builds/instant-translate-firefox-v${npm_package_version}.zip manifest.json background.js content.js assets lib popup && del-cli manifest.json",
+    "test:chrome": "cpy manifest.v3.json . --rename=manifest.json",
+    "test:firefox": "cpy manifest.v2.json . --rename=manifest.json",
+    "clean": "del-cli manifest.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+} 

@@ -1,33 +1,28 @@
 {
   "manifest_version": 3,
-  "name": "Smart Auto Tradutor PT-EN",
-  "version": "2.0",
-  "description": "Uma extensão de navegador que traduz o que você escreve em qualquer campo de texto",
-
+  "name": "Instant Translate - Hotkey Translator",
+  "version": "1.0.0",
+  "description": "Traduza textos de PT-BR para EN instantaneamente com uma simples hotkey.",
   "permissions": [
     "activeTab",
     "storage",
     "contextMenus"
   ],
-
   "host_permissions": [
     "https://translate.googleapis.com/*",
     "https://api-free.deepl.com/*",
     "https://api.mymemory.translated.net/*"
   ],
-
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["browser-polyfill.js", "content.js"],
+      "js": ["lib/browser-polyfill.js", "content.js"],
       "run_at": "document_end"
     }
   ],
-
   "background": {
-    "scripts": ["browser-polyfill.js", "background.js"]
+    "service_worker": "background.js"
   },
-
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
@@ -36,7 +31,17 @@
       "128": "assets/icons/icon.png"
     }
   },
-
+  "icons": {
+    "16": "assets/icons/icon.png",
+    "48": "assets/icons/icon.png",
+    "128": "assets/icons/icon.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/icons/*.png"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "commands": {
     "toggle-translation": {
       "suggested_key": {
@@ -49,13 +54,6 @@
         "default": "Ctrl+Shift+Y"
       },
       "description": "Traduz texto imediatamente"
-    }
-  },
-
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "smart-auto-tradutor@meu.dominio",
-      "strict_min_version": "109.0"
     }
   }
 }

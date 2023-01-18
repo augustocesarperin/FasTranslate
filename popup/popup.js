@@ -79,8 +79,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         await browser.tabs.sendMessage(tab.id, { action: 'updateSettings', settings: settingsToSave });
       }
     } catch (error) {
+      // Ignora o erro "Receiving end does not exist" que ocorre em páginas
+      // como chrome://extensions, o que é um comportamento esperado.
       if (!error.message.includes('Receiving end does not exist')) {
-        console.error("Erro ao enviar mensagem para o content script:", error);
+        // Em produção, podemos optar por não logar nada ou usar um sistema de log remoto.
       }
     }
   }

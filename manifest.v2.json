@@ -1,18 +1,17 @@
 {
-  "manifest_version": 3,
-  "name": "FasTranslate",
+  "manifest_version": 2,
+  "name": "Instant Translate - Hotkey Translator",
   "version": "1.0.0",
-  "description": "Tradução instantânea de português para inglês enquanto você digita.",
+  "description": "Traduza textos de PT-BR para EN instantaneamente com uma simples hotkey.",
+
   "permissions": [
     "activeTab",
     "storage",
-    "contextMenus"
-  ],
-  "host_permissions": [
     "https://translate.googleapis.com/*",
     "https://api-free.deepl.com/*",
     "https://api.mymemory.translated.net/*"
   ],
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -20,10 +19,12 @@
       "run_at": "document_end"
     }
   ],
+
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["lib/browser-polyfill.js", "background.js"]
   },
-  "action": {
+
+  "browser_action": {
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "assets/icons/icon.png",
@@ -31,29 +32,25 @@
       "128": "assets/icons/icon.png"
     }
   },
+
   "icons": {
     "16": "assets/icons/icon.png",
     "48": "assets/icons/icon.png",
     "128": "assets/icons/icon.png"
   },
-  "web_accessible_resources": [
-    {
-      "resources": ["assets/icons/*.png"],
-      "matches": ["<all_urls>"]
-    }
-  ],
+
   "commands": {
-    "toggle-translation": {
-      "suggested_key": {
-        "default": "Alt+T"
-      },
-      "description": "Ativa/desativa tradução automática"
-    },
     "translate-now": {
       "suggested_key": {
         "default": "Ctrl+Shift+Y"
       },
       "description": "Traduz texto imediatamente"
+    }
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fastranslate@augustocesarperin.dev"
     }
   }
 }

@@ -1,4 +1,6 @@
-importScripts('lib/browser-polyfill.js');
+if (typeof importScripts === 'function') {
+  importScripts('lib/browser-polyfill.js');
+}
 
 async function translateWithGoogle(text, apiKey) {
   if (!apiKey) throw new Error('Google API key não configurada');
@@ -81,7 +83,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         sendResponse({ success: true, translated });
       } catch (error) {
-        console.error('Erro de tradução no background:', error);
+        // Silently fail or handle error appropriately for production
         sendResponse({ success: false, error: error.message });
       }
     })();
