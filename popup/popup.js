@@ -1,12 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  // Elementos
   const elements = {
-    enabled: document.getElementById('enabled'),
-    delay: document.getElementById('delay'),
-    delayValue: document.getElementById('delayValue'),
     api: document.getElementById('api'),
-    autoDetect: document.getElementById('autoDetect'),
-    cacheEnabled: document.getElementById('cacheEnabled'),
     googleApiKey: document.getElementById('googleApiKey'),
     deeplApiKey: document.getElementById('deeplApiKey'),
     saveApiKeys: document.getElementById('saveApiKeys'),
@@ -15,20 +9,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearHistory: document.getElementById('clearHistory')
   };
   
-  // Carrega configurações
-  const { settings } = await chrome.storage.local.get(['settings']);
+  const { settings } = await browser.storage.local.get(['settings']);
   if (settings) {
-    elements.enabled.checked = settings.enabled;
-    elements.delay.value = settings.delay / 1000;
-    elements.delayValue.textContent = settings.delay / 1000;
     elements.api.value = settings.api;
-    elements.autoDetect.checked = settings.autoDetect;
-    elements.cacheEnabled.checked = settings.cacheEnabled;
     elements.googleApiKey.value = settings.apiKeys?.google || '';
     elements.deeplApiKey.value = settings.apiKeys?.deepl || '';
   }
   
-  // Navegação por abas
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -37,35 +24,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       tab.classList.add('active');
       document.getElementById(tab.dataset.tab).classList.add('active');
       
-      // Carrega histórico quando abre a aba
       if (tab.dataset.tab === 'history') {
         loadHistory();
       }
     });
   });
   
-  // Listeners de configuração
-  elements.enabled.addEventListener('change', updateSettings);
   elements.api.addEventListener('change', updateSettings);
-  elements.autoDetect.addEventListener('change', updateSettings);
-  elements.cacheEnabled.addEventListener('change', updateSettings);
   
-  elements.delay.addEventListener('input', (e) => {
-    elements.delayValue.textContent = e.target.value;
-    updateSettings();
-  });
-  
-  // Salvar API Keys
   elements.saveApiKeys.addEventListener('click', async () => {
-    const settings = await chrome.storage.local.get(['settings']);
-    settings.settings.apiKeys = {
+    const { settings: currentSettings } = await browser.storage.local.get(['settings']);
+    currentSettings.apiKeys = {
       google: elements.googleApiKey.value,
       deepl: elements.deeplApiKey.value
     };
     
-    await chrome.storage.local.set({ settings: settings.settings });
+    await browser.storage.local.set({ settings: currentSettings });
     
-    // Mostra status
     elements.apiStatus.style.display = 'block';
     elements.apiStatus.className = 'status';
     elements.apiStatus.textContent = '✓ Chaves salvas com sucesso!';
@@ -77,49 +52,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateSettings();
   });
   
-  // Limpar histórico
   elements.clearHistory.addEventListener('click', async () => {
     if (confirm('Tem certeza que deseja limpar todo o histórico?')) {
-      await chrome.storage.local.set({ history: [] });
+      await browser.storage.local.set({ history: [] });
       loadHistory();
     }
   });
   
-  // Atualiza configurações
   async function updateSettings() {
-    const settings = {
-      enabled: elements.enabled.checked,
-      delay: parseFloat(elements.delay.value) * 1000,
+    const { settings: oldSettings } = await browser.storage.local.get(['settings']);
+    
+    const settingsToSave = {
+      ...oldSettings,
       api: elements.api.value,
-      autoDetect: elements.autoDetect.checked,
-      cacheEnabled: elements.cacheEnabled.checked,
       apiKeys: {
         google: elements.googleApiKey.value,
         deepl: elements.deeplApiKey.value
       }
     };
     
-    // Salva e envia para content script
-    await chrome.storage.local.set({ settings });
+    await browser.storage.local.set({ settings: settingsToSave });
     
     try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      // Só envia a mensagem se estivermos em uma aba válida (não em chrome://)
+      const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
       if (tab && tab.id) {
-        chrome.tabs.sendMessage(tab.id, { action: 'updateSettings', settings });
+        await browser.tabs.sendMessage(tab.id, { action: 'updateSettings', settings: settingsToSave });
       }
     } catch (error) {
-      // Ignora o erro "Receiving end does not exist" que ocorre em páginas
-      // como chrome://extensions, o que é um comportamento esperado.
       if (!error.message.includes('Receiving end does not exist')) {
         console.error("Erro ao enviar mensagem para o content script:", error);
       }
     }
   }
   
-  // Carrega histórico
   async function loadHistory() {
-    const { history = [] } = await chrome.storage.local.get(['history']);
+    const { history = [] } = await browser.storage.local.get(['history']);
     
     if (history.length === 0) {
       elements.historyList.innerHTML = '<p style="text-align: center; color: #666;">Nenhuma tradução ainda</p>';
@@ -140,7 +107,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }).join('');
   }
   
-  // Helpers
   function getTimeAgo(date) {
     const seconds = Math.floor((new Date() - date) / 1000);
     

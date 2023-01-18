@@ -1,4 +1,4 @@
-console.log("Service Worker do Smart Auto Tradutor iniciado.");
+importScripts('lib/browser-polyfill.js');
 
 async function translateWithGoogle(text, apiKey) {
   if (!apiKey) throw new Error('Google API key não configurada');
@@ -58,7 +58,7 @@ async function translateWithMyMemory(text) {
   return data.responseData.translatedText;
 }
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'translate') {
     const { text, settings } = request;
 
@@ -90,8 +90,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-chrome.commands.onCommand.addListener((command, tab) => {
+browser.commands.onCommand.addListener((command, tab) => {
   if (command === "toggle-translation" || command === "translate-now") {
-    chrome.tabs.sendMessage(tab.id, { action: command });
+    browser.tabs.sendMessage(tab.id, { action: command });
   }
 });

@@ -222,7 +222,7 @@
 </head>
 <body>
   <div class="header">
-    <h1>🌐 Smart Auto Tradutor</h1>
+    <h1>🌐 FasTranslate</h1>
   </div>
   
   <div class="tabs">
@@ -234,41 +234,12 @@
   
   <div id="main" class="tab-content active">
     <div class="setting-group">
-      <label>
-        Tradução Automática
-        <label class="toggle-switch">
-          <input type="checkbox" id="enabled" checked>
-          <span class="slider"></span>
-        </label>
-      </label>
-    </div>
-    
-    <div class="setting-group">
-      <label>Tempo de espera: <span id="delayValue">1.5</span>s</label>
-      <input type="range" id="delay" min="0.5" max="5" step="0.5" value="1.5">
-    </div>
-    
-    <div class="setting-group">
       <label>Serviço de Tradução</label>
       <select id="api">
         <option value="mymemory">MyMemory (Grátis)</option>
         <option value="deepl">DeepL (Requer API Key)</option>
         <option value="google">Google Translate (Requer API Key)</option>
       </select>
-    </div>
-    
-    <div class="setting-group">
-      <label>
-        <input type="checkbox" id="autoDetect" checked>
-        Detectar português automaticamente
-      </label>
-    </div>
-    
-    <div class="setting-group">
-      <label>
-        <input type="checkbox" id="cacheEnabled" checked>
-        Usar cache para traduções repetidas
-      </label>
     </div>
   </div>
   
@@ -296,7 +267,6 @@
   
   <div id="history" class="tab-content">
     <div id="historyList">
-      <!-- Histórico será carregado aqui -->
     </div>
     <button class="clear-history" id="clearHistory">Limpar Histórico</button>
   </div>
@@ -334,6 +304,7 @@
     </ul>
   </div>
   
+  <script src="../lib/browser-polyfill.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

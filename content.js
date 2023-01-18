@@ -1,10 +1,9 @@
-// content.js - Sistema Avançado de Tradução
 class SmartTranslator {
   constructor() {
     this.settings = {
       enabled: true,
       delay: 1500,
-      api: 'deepl', // 'google', 'deepl', 'mymemory'
+      api: 'deepl',
       autoDetect: true,
       cacheEnabled: true,
       minTextLength: 10,
@@ -24,7 +23,7 @@ class SmartTranslator {
   }
   
   async init() {
-    const saved = await chrome.storage.local.get(['settings']);
+    const saved = await browser.storage.local.get(['settings']);
     if (saved.settings) {
       this.settings = { ...this.settings, ...saved.settings };
     }
@@ -40,7 +39,7 @@ class SmartTranslator {
     }
 
     try {
-      const response = await chrome.runtime.sendMessage({
+      const response = await browser.runtime.sendMessage({
         action: 'translate',
         text: text,
         settings: this.settings
@@ -125,40 +124,6 @@ class SmartTranslator {
     }, 3000);
   }
   
-  async handleInput(event) {
-    if (!this.settings.enabled || this.isTranslating) return;
-    
-    const field = event.target;
-    this.currentField = field;
-    
-    clearTimeout(this.typingTimer);
-    
-    this.typingTimer = setTimeout(async () => {
-      const text = this.getFieldText(field);
-      
-      if (!text || text.length < this.settings.minTextLength) return;
-      if (!this.settings.autoDetect || !this.detectLanguage(text)) return;
-      
-      try {
-        this.isTranslating = true;
-        this.originalText = text;
-        
-        this.showIndicator('Traduzindo...');
-        
-        const translated = await this.translateText(text);
-        
-        this.setFieldText(field, translated);
-        
-        this.saveToHistory(text, translated);
-        
-        this.showIndicator('✓ Traduzido');
-      } catch (error) {
-      } finally {
-        this.isTranslating = false;
-      }
-    }, this.settings.delay);
-  }
-  
   async forceTranslate(field) {
     if (!this.settings.enabled || this.isTranslating) return;
     
@@ -212,12 +177,11 @@ class SmartTranslator {
       }
     }
     
-    field.dispatchEvent(new Event('input', { bubbles: true }));
     field.dispatchEvent(new Event('change', { bubbles: true }));
   }
   
   async saveToHistory(original, translated) {
-    const history = await chrome.storage.local.get(['history']) || { history: [] };
+    const history = await browser.storage.local.get(['history']) || { history: [] };
     history.history = history.history || [];
     
     history.history.unshift({
@@ -229,31 +193,14 @@ class SmartTranslator {
     
     history.history = history.history.slice(0, 50);
     
-    await chrome.storage.local.set({ history: history.history });
+    await browser.storage.local.set({ history: history.history });
   }
   
   attachListeners() {
-    document.addEventListener('input', (e) => this.handleInput(e), true);
-    
     document.addEventListener('focusin', (e) => {
       if (this.isTextField(e.target)) {
         this.currentField = e.target;
       }
-    });
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === 1 && this.isTextField(node)) {
-            node.addEventListener('input', (e) => this.handleInput(e));
-          }
-        });
-      });
-    });
-    
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
     });
     
     document.addEventListener('keydown', (e) => {
@@ -274,21 +221,21 @@ class SmartTranslator {
 
 const translator = new SmartTranslator();
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.action) {
     case 'updateSettings':
       translator.settings = { ...translator.settings, ...request.settings };
-      chrome.storage.local.set({ settings: translator.settings });
+      browser.storage.local.set({ settings: translator.settings });
       break;
       
     case 'getHistory':
-      chrome.storage.local.get(['history']).then(sendResponse);
+      browser.storage.local.get(['history']).then(sendResponse);
       return true;
       
     case 'toggle-translation':
       translator.settings.enabled = !translator.settings.enabled;
       translator.showIndicator(translator.settings.enabled ? '✓ Tradução Ativada' : '✗ Tradução Desativada');
-      chrome.storage.local.set({ settings: translator.settings });
+      browser.storage.local.set({ settings: translator.settings });
       break;
       
     case 'translate-now':
